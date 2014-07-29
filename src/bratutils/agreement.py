@@ -308,8 +308,14 @@ class Tag:
             return True
         else:
             # TODO check indexes in cases like 'I'
-            tag_contained_in_gold = gold_tag.start_idx <= self.start_idx < gold_tag.end_idx or gold_tag.start_idx < self.end_idx <= gold_tag.end_idx
-            tag_span_over_gold = self.start_idx <= gold_tag.start_idx and self.end_idx >= gold_tag.end_idx
+            tag_contained_in_gold = (gold_tag.start_idx <=
+                                     self.start_idx <
+                                     gold_tag.end_idx or
+                                     gold_tag.start_idx <
+                                     self.end_idx <=
+                                     gold_tag.end_idx)
+            tag_span_over_gold = (self.start_idx <= gold_tag.start_idx and
+                                  self.end_idx >= gold_tag.end_idx)
             return tag_contained_in_gold or tag_span_over_gold
 
     def get_overlapping_tags(self, gold_tags):
@@ -320,8 +326,11 @@ class Tag:
         return overlapping_tags
 
     def has_partial_candidate(self, gold_tag):
-        tag_contained_in_gold = gold_tag.start_idx <= self.start_idx and self.end_idx <= gold_tag.end_idx  # or goldTag.start_idx < self.end_idx <= goldTag.end_idx
-        tag_span_over_gold = self.start_idx <= gold_tag.start_idx and gold_tag.end_idx <= self.end_idx
+        tag_contained_in_gold = (gold_tag.start_idx <= self.start_idx and
+                                 self.end_idx <= gold_tag.end_idx)
+        # or goldTag.start_idx < self.end_idx <= goldTag.end_idx
+        tag_span_over_gold = (self.start_idx <= gold_tag.start_idx and
+                              gold_tag.end_idx <= self.end_idx)
         return tag_contained_in_gold or tag_span_over_gold
 
     def is_right_from(self, tag):
@@ -337,10 +346,14 @@ class Tag:
         return False
 
     def in_range(self, idx_range):
-        return idx_range[0] <= self.start_idx <= idx_range[1] or idx_range[0] <= self.end_idx <= idx_range[1]
+        return (idx_range[0] <= self.start_idx <= idx_range[1] or
+                idx_range[0] <= self.end_idx <= idx_range[1])
 
     def __eq__(self, tag):
-        return self.text == tag.text and self.start_idx == tag.start_idx and self.end_idx == tag.end_idx and self.tag_name == tag.tag_name
+        return (self.text == tag.text and
+                self.start_idx == tag.start_idx and
+                self.end_idx == tag.end_idx and
+                self.tag_name == tag.tag_name)
 
     def __str__(self):
         return " ".join([self.tag_name, self.text])
@@ -375,7 +388,9 @@ class Filter:
         new_tags = []
         for tag in document.postag_list:
             for filter_tag in self.conditions:
-                if (self.positive_polarity and tag.tag_name == filter_tag) or (not self.positive_polarity and tag.tag_name is not filter_tag):
+                if ((self.positive_polarity and tag.tag_name == filter_tag) or
+                        (not self.positive_polarity and
+                            tag.tag_name is not filter_tag)):
                     new_tags.append(tag)
         document.postag_list = new_tags
 
@@ -384,7 +399,8 @@ class Filter:
         for tag in document.postag_list:
             for condition in self.conditions:
                 in_range = tag.in_range(condition)
-                if (self.positive_polarity and not in_range) or (not self.positive_polarity and in_range):
+                if ((self.positive_polarity and not in_range) or
+                        (not self.positive_polarity and in_range)):
                     new_tags.append(tag)
                 else:
                     pass
@@ -433,7 +449,8 @@ class Document:  # the sum of all entries from an '.ann' file
             if tag.text == "able":
                 pass
             for gTag in gold.postag_list:
-                if gTag.start_idx <= tag.start_idx <= gTag.end_idx or gTag.start_idx <= tag.end_idx <= gTag.end_idx:
+                if (gTag.start_idx <= tag.start_idx <= gTag.end_idx or
+                        gTag.start_idx <= tag.end_idx <= gTag.end_idx):
                     mismatch = False
                     break
                 else:
@@ -446,9 +463,12 @@ class Document:  # the sum of all entries from an '.ann' file
         return gold.check_for_spurious(self)
 
     def compare_to_gold(self, gold):
-        '''
-        Tags in this object are assumed to be guess tags. Gold standard tags are passed as parameter gold.
-        '''
+        """Tags in this object are assumed to be guess tags. Gold standard tags
+        are passed as parameter gold.
+
+        :param gold:
+        :return:
+        """
         muc = MucTable()
         self.sort()
         gold.sort()
@@ -470,7 +490,8 @@ class Document:  # the sum of all entries from an '.ann' file
                     tag.comp_status = MucTable.INCORRECT
                     ctag.comp_status = MucTable.INCORRECT
                     muc.inc += 1
-                elif tag.comp_status != MucTable.PARTIAL and tag.tag_name == ctag.tag_name:  # partial match
+                elif (tag.comp_status != MucTable.PARTIAL and
+                        tag.tag_name == ctag.tag_name):  # partial match
                     tag.comp_status = MucTable.PARTIAL
                     ctag.comp_status = MucTable.PARTIAL
                     muc.par += 1
@@ -484,7 +505,10 @@ class Document:  # the sum of all entries from an '.ann' file
         muc.spu = len(self.tags) - len([x for x in self.tags if x.comp_status])
         # Missing tags are tags that are not fully contained in any guess tag
         # mis = n of gold tags - n of contained tags
-        muc.mis = len([x for x in gold.postag_list if x.comp_status == MucTable.MISSING])
+        muc.mis = len([x
+                       for x
+                       in gold.postag_list
+                       if x.comp_status == MucTable.MISSING])
         muc.update_table()
         return muc
 
@@ -494,19 +518,25 @@ class Document:  # the sum of all entries from an '.ann' file
             overlapping_tags = tag.get_overlapping_tags(gold.postag_list)
             partial_tag = None
             for overlapping_tag in overlapping_tags:
-                if tag == overlapping_tag:  # the tag is a full match: cor
+                # the tag is a full match: cor
+                if tag == overlapping_tag:
                     tag.comp_status = MucTable.CORRECT
                     overlapping_tag.comp_status = MucTable.CORRECT
                     self.correct.append(tag)
                     muc.cor += 1
                     break
-                elif tag.coincide_with(overlapping_tag):  # the tag has matching borders, but wrong tag: inc
+                # the tag has matching borders, but wrong tag: inc
+                elif tag.coincide_with(overlapping_tag):
                     tag.comp_status = MucTable.INCORRECT
                     overlapping_tag.comp_status = MucTable.INCORRECT
                     self.incorrect.append(tag)
                     muc.inc += 1
                     break
-                elif tag.tag_name == overlapping_tag.tag_name and tag.has_partial_candidate(overlapping_tag) and (partial_tag is None or overlapping_tag.is_right_from(partial_tag)):  # potential partial match: par
+                # potential partial match: par
+                elif (tag.tag_name == overlapping_tag.tag_name and
+                        tag.has_partial_candidate(overlapping_tag) and
+                        (partial_tag is None or
+                            overlapping_tag.is_right_from(partial_tag))):
                     old_partial_match = overlapping_tag.partial_match
                     if old_partial_match is not None:
                         if tag.is_right_from(old_partial_match):
@@ -552,16 +582,20 @@ class Document:  # the sum of all entries from an '.ann' file
         return "".join(self.tags)
 
 
-class DocumentCollection:  # collection of the entries from '.ann' files
+class DocumentCollection:
+    """collection of the entries from '.ann' files
+    """
     def __init__(self, document_dir_path):
         if not os.path.isdir(document_dir_path):
             raise IOError("The %s does not exist." % document_dir_path)
         if os.listdir(document_dir_path) is []:
-            raise ValueError("Empty Document Collection directory: %s" % document_dir_path)
+            raise ValueError("Empty Document Collection directory: %s"
+                             % document_dir_path)
         self.documents = {}
         files = glob.glob(os.path.join(document_dir_path, "*.ann"))
         for fileName in files:
-            self.documents[ntpath.basename(fileName)] = Document(document_path=fileName)
+            self.documents[ntpath.basename(fileName)] = \
+                Document(document_path=fileName)
 
     def get_correct(self):
         correct = []
@@ -629,7 +663,9 @@ class DocumentCollection:  # collection of the entries from '.ann' files
         return tv_list
 
     def __str__(self):
-        return "".join(["%s\n\n%s\n" % (key, self.documents.get(key)) for key in self.documents.keys()])
+        return "".join(["%s\n\n%s\n" % (key, self.documents.get(key))
+                        for key
+                        in self.documents.keys()])
 
     def __repr__(self):
         return str(self)

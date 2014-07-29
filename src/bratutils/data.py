@@ -26,7 +26,9 @@ class BratComment(object):
         self.recordref = int(items[1][16:])
 
     def __str__(self):
-        return "#{0}\tAnnotatorNotes T{1}\t{2}\n".format(str(self.id), str(self.recordref), self.note)
+        return "#{0}\tAnnotatorNotes T{1}\t{2}\n".format(str(self.id),
+                                                         str(self.recordref),
+                                                         self.note)
 
     def __eq__(self, other):
         if not isinstance(other, BratComment):
@@ -65,7 +67,8 @@ class BratAnnotation(object):
 
     def add_comment(self, comment):
         if self.comment and comment:
-            self.comment.note = "Comment 1: {0} Comment 2: {1}".format(self.comment.note.replace("\n", ""), comment.note)
+            self.comment.note = "Comment 1: {0} Comment 2: {1}".format(
+                self.comment.note.replace("\n", ""), comment.note)
         elif comment:
             self.comment = comment
             self.comment.recordref = self.id
@@ -77,15 +80,26 @@ class BratAnnotation(object):
         return int(self.boundaries[0][0])
 
     def get_right_border(self, inclusive=False):
-        return int(self.boundaries[-1][1])-1 if inclusive else int(self.boundaries[-1][1])
+        return (int(self.boundaries[-1][1])-1
+                if inclusive
+                else int(self.boundaries[-1][1]))
 
     def __str__(self):
         comment_str = str(self.comment) if self.comment else ""
-        return "T{0}\t{1} {2}\t{3}\n{4}".format(str(self.id), self.tag, ";".join([" ".join(b) for b in self.boundaries]), self.content, comment_str)
+        return "T{0}\t{1} {2}\t{3}\n{4}".format(str(self.id), self.tag,
+                                                ";".join([" ".join(b)
+                                                          for b
+                                                          in self.boundaries]),
+                                                self.content, comment_str)
 
     def __repr__(self):
         comment_str = "; {0}".format(str(self.comment)) if self.comment else ""
-        return "T{0}\t{1} {2}\t{3}{4}".format(str(self.id), self.tag, ";".join([" ".join(b) for b in self.boundaries]), self.content, comment_str)
+        return "T{0}\t{1} {2}\t{3}{4}".format(str(self.id),
+                                              self.tag,
+                                              ";".join([" ".join(b)
+                                                        for b
+                                                        in self.boundaries]),
+                                              self.content, comment_str)
 
     def __eq__(self, other):
         if not isinstance(other, BratAnnotation):
@@ -148,7 +162,8 @@ class BratDocument(dict):
         for key in self.keys():
             if key == target_key:
                 continue
-            if self[key].boundaries == self[target_key].boundaries and self[key].tag == self[target_key].tag:
+            if self[key].boundaries == (self[target_key].boundaries and
+                                        self[key].tag == self[target_key].tag):
                 duplicates.append(key)
         return duplicates
 

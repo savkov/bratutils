@@ -21,12 +21,19 @@ import shutil
 from bratutils.data import BratDocument
 from bratutils.agreement import MucTable
 
-_penn_escape_dict = {'DOT': '.', 'OQ': '``', 'CQ': "''", 'CLM': ':', 'CM': ',', 'LPE': '(', 'RPE': ')'}
+_penn_escape_dict = {'DOT': '.', 'OQ': '``', 'CQ': "''", 'CLM': ':', 'CM': ',',
+                     'LPE': '(', 'RPE': ')'}
 
 
-# Merges the annotation files across all subdirectories of the a and b, deploying the results in c
-def merge_brat_dox_dir(dir_path_a, dir_path_b, dir_path_c):  # TODO: integrate with dir processor
+# TODO: integrate with dir processor
+def merge_brat_dox_dir(dir_path_a, dir_path_b, dir_path_c):
+    """Merges the annotation files across all subdirectories of the a and b,
+    deploying the results in c
 
+    :param dir_path_a:
+    :param dir_path_b:
+    :param dir_path_c:
+    """
     logging.info("Merging directories: %s & %s", dir_path_a, dir_path_b)
     logging.info("Target path: %s", dir_path_c)
 
@@ -41,12 +48,17 @@ def merge_brat_dox_dir(dir_path_a, dir_path_b, dir_path_c):  # TODO: integrate w
                 text.append("{0}{1}{2}".format(root, os.path.sep, f))
 
             elif f.endswith("ann"):
-                annotation_files.append("{0}{1}{2}".format(root, os.path.sep, f))
+                annotation_files.append(
+                    "{0}{1}{2}".format(root, os.path.sep, f))
 
     for ann_file_path in set(annotation_files):
 
         ann_dir = dir_path_a if dir_path_a in ann_file_path else dir_path_b
-        mirrored_ann_file_path = ann_file_path.replace(dir_path_a, dir_path_b) if dir_path_a in ann_file_path else ann_file_path.replace(dir_path_b, dir_path_a)
+        mirrored_ann_file_path = (ann_file_path.replace(dir_path_a,
+                                                        dir_path_b)
+                                  if dir_path_a in ann_file_path
+                                  else ann_file_path.replace(dir_path_b,
+                                                             dir_path_a))
         merged_ann_file_path = ann_file_path.replace(ann_dir, dir_path_c)
         text_file = "%stxt" % ann_file_path[0:-3]
         text_file_copy = "%stxt" % merged_ann_file_path[0:-3]
@@ -54,17 +66,30 @@ def merge_brat_dox_dir(dir_path_a, dir_path_b, dir_path_c):  # TODO: integrate w
         if not os.path.exists(dirname(merged_ann_file_path)):
             os.makedirs(dirname(merged_ann_file_path))
 
-        logging.debug("Text file: %s Text file copy: %s", text_file, text_file_copy)
-        logging.debug("Annotation1: %s\nAnnotation2: %s\nMerged: %s\n", ann_file_path, mirrored_ann_file_path, merged_ann_file_path)
+        logging.debug("Text file: %s Text file copy: %s",
+                      text_file,
+                      text_file_copy)
+        logging.debug("Annotation1: %s\nAnnotation2: %s\nMerged: %s\n",
+                      ann_file_path,
+                      mirrored_ann_file_path,
+                      merged_ann_file_path)
 
-        merge_brat_documents(ann_file_path, mirrored_ann_file_path, merged_ann_file_path)
+        merge_brat_documents(ann_file_path,
+                             mirrored_ann_file_path,
+                             merged_ann_file_path)
         shutil.copyfile(text_file, text_file_copy)
 
     logging.info("Merging done.")
 
 
-# Merges two annotation of the same document (a and b) into their union without duplicates stored into document c.
 def merge_brat_documents(doc_path_a, doc_path_b, doc_path_c):
+    """Merges two annotation of the same document (a and b) into their union
+    without duplicates stored into document c.
+
+    :param doc_path_a:
+    :param doc_path_b:
+    :param doc_path_c:
+    """
     doc1 = BratDocument(doc_path=doc_path_a)
     doc2 = BratDocument(doc_path=doc_path_b)
     merged_doc = BratDocument()
@@ -97,7 +122,9 @@ class MissingAnnotationFileError(Exception):
         return repr(self.value)
 
 
-def get_fscore_vector(muc_tables, param="fsc", comparison=MucTable.HARD_COMPARISON):
+def get_fscore_vector(muc_tables,
+                      param="fsc",
+                      comparison=MucTable.HARD_COMPARISON):
     vector = []
     for muc in muc_tables:
         muc.update_table(comparison)
