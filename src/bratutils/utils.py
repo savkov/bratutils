@@ -14,33 +14,50 @@
 # along with DrTokenizer.  If not, see <http://www.gnu.org/licenses/>.
 __author__ = 'Aleksandar Savkov'
 
+"""Utility package for the bratutils package.
+"""
+
 import logging
 import os
 from os.path import dirname
 import shutil
-from bratutils.data import BratDocument
+
+from bratutils.bratdata import BratAnnotation
 from bratutils.agreement import MucTable
+
 
 _penn_escape_dict = {'DOT': '.', 'OQ': '``', 'CQ': "''", 'CLM': ':', 'CM': ',',
                      'LPE': '(', 'RPE': ')'}
 
 
-# TODO: integrate with dir processor
-def merge_brat_dox_dir(dir_path_a, dir_path_b, dir_path_c):
-    """Merges the annotation files across all subdirectories of the a and b,
-    deploying the results in c
-
-    :param dir_path_a:
-    :param dir_path_b:
-    :param dir_path_c:
+class MissingAnnotationFileError(Exception):
+    """Thrown when one of the brat annotation file pair is missing. Each brat
+     annotation consists of a text `txt` file and an annotation `ann` file of
+     the same name (before the file extension suffix).
     """
-    logging.info("Merging directories: %s & %s", dir_path_a, dir_path_b)
-    logging.info("Target path: %s", dir_path_c)
+
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return repr(self.value)
+
+
+def merge_brat_dox_dir(dp_a, dp_b, dp_res):
+    """Merges the annotation files across all subdirectories of `dp_a` and
+    `dp_b`, deploying the results in `dp_res`.
+
+    :param dp_a: directory path A
+    :param dp_b: directory path B
+    :param dp_res: results directory path
+    """
+    logging.info("Merging directories: %s & %s", dp_a, dp_b)
+    logging.info("Target path: %s", dp_res)
 
     text = []
     annotation_files = []
 
-    for root, dirs, files in os.walk(dir_path_a):
+    for root, dirs, files in os.walk(dp_a):
 
         for f in files:
 
@@ -53,13 +70,13 @@ def merge_brat_dox_dir(dir_path_a, dir_path_b, dir_path_c):
 
     for ann_file_path in set(annotation_files):
 
-        ann_dir = dir_path_a if dir_path_a in ann_file_path else dir_path_b
-        mirrored_ann_file_path = (ann_file_path.replace(dir_path_a,
-                                                        dir_path_b)
-                                  if dir_path_a in ann_file_path
-                                  else ann_file_path.replace(dir_path_b,
-                                                             dir_path_a))
-        merged_ann_file_path = ann_file_path.replace(ann_dir, dir_path_c)
+        ann_dir = dp_a if dp_a in ann_file_path else dp_b
+        mirrored_ann_file_path = (ann_file_path.replace(dp_a,
+                                                        dp_b)
+                                  if dp_a in ann_file_path
+                                  else ann_file_path.replace(dp_b,
+                                                             dp_a))
+        merged_ann_file_path = ann_file_path.replace(ann_dir, dp_res)
         text_file = "%stxt" % ann_file_path[0:-3]
         text_file_copy = "%stxt" % merged_ann_file_path[0:-3]
 
@@ -82,20 +99,20 @@ def merge_brat_dox_dir(dir_path_a, dir_path_b, dir_path_c):
     logging.info("Merging done.")
 
 
-def merge_brat_documents(doc_path_a, doc_path_b, doc_path_c):
-    """Merges two annotation of the same document (a and b) into their union
-    without duplicates stored into document c.
+def merge_brat_documents(fp_a, fp_b, fp_res):
+    """Merges two annotation of the same document (`fp_a` amd `fp_b`) into their
+    union without duplicates stored into document in `fp_res`.
 
-    :param doc_path_a:
-    :param doc_path_b:
-    :param doc_path_c:
+    :param fp_a: file path A
+    :param fp_b: file path B
+    :param fp_res: results file path
     """
-    doc1 = BratDocument(doc_path=doc_path_a)
-    doc2 = BratDocument(doc_path=doc_path_b)
-    merged_doc = BratDocument()
+    doc1 = BratAnnotation(doc_path=fp_a)
+    doc2 = BratAnnotation(doc_path=fp_b)
+    merged_doc = BratAnnotation()
     merged_doc.update(doc1)
     doc1size = len(doc1)
-    doc1comments = doc1.get_num_comments()
+    doc1comments = doc1.comments_count
     for record in doc2.values():
         record_id = int(record.id)
         record.update_id(record_id + doc1size)
@@ -104,27 +121,22 @@ def merge_brat_documents(doc_path_a, doc_path_b, doc_path_c):
         merged_doc[record.id] = record
     merged_doc.remove_duplicates()
     merged_doc.enumerate_comments()
-    merged_doc.export_to_file(doc_path_c)
+    merged_doc.export_to_file(fp_res)
 
 
-def unescape_brat_tags(ann_file_path, escape_dict=_penn_escape_dict):
-    ann = BratDocument(doc_path=ann_file_path)
-    ann.unescape_tags(escape_dict)
-    ann.export_to_file(ann_file_path)
+def get_stat_vector(muc_tables,
+                    param="fsc",
+                    comparison=MucTable.STRICT_COMPARISON):
+    """Returns a statistic vector extracted from a list of MucTable objects.
 
+    Note: this method re-estimates the statistics in the `MucTable` object.
 
-class MissingAnnotationFileError(Exception):
-
-    def __init__(self, value):
-        self.value = value
-
-    def __str__(self):
-        return repr(self.value)
-
-
-def get_fscore_vector(muc_tables,
-                      param="fsc",
-                      comparison=MucTable.HARD_COMPARISON):
+    :param muc_tables: list of `MucTable` objects
+    :param param: statistic name
+    :param comparison: comparison type
+    :return: a statistic vector
+    :rtype: list
+    """
     vector = []
     for muc in muc_tables:
         muc.update_table(comparison)
