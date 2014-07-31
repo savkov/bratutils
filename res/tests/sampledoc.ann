@@ -1,0 +1,11 @@
+T1	NP 0 28	Abdominal distension symptom
+#1	AnnotatorNotes T1	Abbreviation for the word increase #1
+T2	TE 32 41	As before
+#2	AnnotatorNotes T2	Another abbreviation for the word increase #2
+T3	NP 43 60	fybogel unhelpful
+T4	NP 0 28	Abdominal distension symptom
+#3	AnnotatorNotes T4	Another abbreviation for the word increase #3
+T5	TE 67 77	for a week
+T6	OE 79 86	On exam
+T7	NP 43 60	fybogel unhelpful
+#3	AnnotatorNotes T7	Another abbreviation for the word increase #4
