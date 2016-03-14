@@ -225,8 +225,8 @@ class MucTable:
             ["bor", "ibo"]
         ]
         blocks = []
-        line = "------------------------------------------------"
-        title_line = "-------------------MUC-Table--------------------"
+        line = "\n------------------------------------------------\n"
+        title_line = "\n-------------------MUC-Table--------------------"
         blocks.append(title_line)
         for keychain in keychains:
             blocks.append(
@@ -621,9 +621,9 @@ class Document:
         self.sort()
         parallel_doc.sort()
         for tag in self.tags:
-            contained_tags = tag.get_contained_anns(parallel_doc.postag_list)
+            contained_tags = tag.get_contained_anns(parallel_doc.tags)
             if not contained_tags:
-                ctag = tag.get_containing_ann(parallel_doc.postag_list)
+                ctag = tag.get_containing_ann(parallel_doc.tags)
                 if ctag and ctag.comp_status == MucTable.MISSING:
                     muc.par += 1
                     tag.comp_status = MucTable.PARTIAL
@@ -655,7 +655,7 @@ class Document:
         # mis = n of gold tags - n of contained tags
         muc.mis = len([x
                        for x
-                       in parallel_doc.postag_list
+                       in parallel_doc.tags
                        if x.comp_status == MucTable.MISSING])
         muc.update_table()
         return muc
