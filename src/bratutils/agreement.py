@@ -380,6 +380,15 @@ class Annotation:
         return (parallel_ann.start_idx <= self.start_idx and
                 parallel_ann.end_idx >= self.end_idx)
 
+    def get_same_anns(self, parallel_anns):
+        """Returns a list of parallel annotations with that match this annotation.
+
+        :param parallel_anns: list of parallel annotations
+        :return: list of contained annotations
+        :rtype: list
+        """
+        return [x for x in parallel_anns if self == x]
+
     def get_contained_anns(self, parallel_anns):
         """Returns a list of parallel annotations contained in this annotation.
 
@@ -620,15 +629,25 @@ class Document:
         muc = MucTable()
         self.sort()
         parallel_doc.sort()
+        self.remove_duplicates()
+        parallel_doc.remove_duplicates()
         for tag in self.tags:
-            contained_tags = tag.get_contained_anns(parallel_doc.tags)
+            contained_tags = tag.get_same_anns(parallel_doc.tags)
+            if not contained_tags:
+                contained_tags = tag.get_contained_anns(parallel_doc.tags)
             if not contained_tags:
                 ctag = tag.get_containing_ann(parallel_doc.tags)
                 if ctag and ctag.comp_status == MucTable.MISSING:
-                    muc.par += 1
-                    tag.comp_status = MucTable.PARTIAL
-                    ctag.comp_status = MucTable.PARTIAL
-                    continue
+                    if tag.tag_name == ctag.tag_name:
+                        muc.par += 1
+                        tag.comp_status = MucTable.PARTIAL
+                        ctag.comp_status = MucTable.PARTIAL
+                        continue
+                    else:
+                        muc.inc += 1
+                        tag.comp_status = MucTable.INCORRECT
+                        ctag.comp_status = MucTable.INCORRECT
+                        continue
             for ctag in contained_tags:
                 if tag == ctag:  # full match
                     tag.comp_status = MucTable.CORRECT
@@ -659,6 +678,19 @@ class Document:
                        if x.comp_status == MucTable.MISSING])
         muc.update_table()
         return muc
+
+
+    def remove_duplicates(self):
+        """Removes duplicate annotations in this document.
+        """
+
+        for tag in self.tags:
+            equal_tags = tag.get_same_anns(self.tags)
+
+            if len(equal_tags) > 1:
+                for equal_tag in equal_tags[1:]:
+                    self.tags.remove(equal_tag)
+
 
     def filter_document(self, doc_filters):
         """Applies the list of filter to this annotation document.
