@@ -750,6 +750,8 @@ class Document:
 
         self.sort()
         parallel_doc.sort()
+        self.remove_duplicates()
+        parallel_doc.remove_duplicates()
         for tag in self.tags:
 
             # tags with coinciding indices
@@ -768,7 +770,6 @@ class Document:
             containing_tags = tag.get_containing_ann(parallel_doc.tags)
             if containing_tags:
                 self.handle_containing_tags(tag, containing_tags, muc)
-
         # Spurious tags are tags that are not fully contained in any gold tag
         muc.spu = self.count_remaining(parallel_doc.tags)
 
