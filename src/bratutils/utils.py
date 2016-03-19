@@ -12,18 +12,20 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with BratUtils.  If not, see <http://www.gnu.org/licenses/>.
+import os
+import shutil
+import logging
+
+from os.path import dirname
+from bratutils.bratdata import BratAnnotation
+from bratutils.agreement import MucTable
+
+
 __author__ = 'Aleksandar Savkov'
 
 """Utility package for the bratutils package.
 """
 
-import logging
-import os
-from os.path import dirname
-import shutil
-
-from bratutils.bratdata import BratAnnotation
-from bratutils.agreement import MucTable
 
 
 _penn_escape_dict = {'DOT': '.', 'OQ': '``', 'CQ': "''", 'CLM': ':', 'CM': ',',

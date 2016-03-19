@@ -17,10 +17,18 @@ from bratutils import agreement as a
 
 __author__ = 'Aleksandar Savkov'
 
+# doc = a.Document('../res/samples/other/final_embedding_a.ann')
+# doc2 = a.Document('../res/samples/other/final_embedding_b.ann')
+#
+# doc.make_gold()
+# statistics = doc2.compare_to_gold(doc)
+#
+# print statistics
+
 doc = a.Document('../res/samples/A/data-sample-1.ann')
 doc2 = a.Document('../res/samples/B/data-sample-1.ann')
 
-doc.make_gold()
+# doc.make_gold()
 statistics = doc2.compare_to_gold(doc)
 
 print statistics

@@ -12,6 +12,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with BratUtils.  If not, see <http://www.gnu.org/licenses/>.
+import os
+import glob
+import ntpath
+import logging
+
+
 __author__ = 'Aleksandar Savkov'
 
 """This module groups data structure classes necessary for the calculation of
@@ -20,9 +26,56 @@ statics counting class is MucTable, which the rest provide suitable brat enabled
 data structures for it.
 """
 
-import os
-import glob
-import ntpath
+
+def safe_division(a, b):
+    """
+
+    :param a: quantity A
+    :param b: quantity B
+    :return: the quatient
+    :rtype: float
+    """
+
+    try:
+        return a / b
+    except ZeroDivisionError:
+        return 0.0
+
+
+def standard_logger(name='BratUtils', log_path=None, log_level=logging.INFO):
+
+    # create logger
+    logger = logging.getLogger(name)
+
+    # set level
+    logger.setLevel(log_level)
+
+    # create handlers
+    h = logging.StreamHandler()
+    h.setLevel(log_level)
+
+    # set the format
+    formatter = logging.Formatter('%(asctime)s :: %(message)s')
+    h.setFormatter(formatter)
+
+    # add the handlers to the logger
+    logger.addHandler(h)
+
+    # repeat for a file log
+    if log_path:
+        try:
+            os.makedirs(log_path)
+        except OSError:
+            pass
+        fh = logging.FileHandler(log_path)
+        fh.setLevel(logging.DEBUG)
+        fh.setFormatter(formatter)
+        logger.addHandler(fh)
+
+    return logger
+
+
+logger = standard_logger(name='agreement', log_level=logging.DEBUG)
 
 
 class Comparison:
@@ -78,7 +131,7 @@ class MucTable:
     def __init__(self):
         self.comparison = None
 
-        #MUC-7 scores
+        # MUC-7 scores
 
         self.pos = 0
         self.act = 0
@@ -115,59 +168,32 @@ class MucTable:
         if comparison_type == self.RELAXED_COMPARISON:
             self.pos = self.cor + self.par + self.inc + self.mis
             self.act = self.cor + self.par + self.inc + self.spu
-            try:
-                self.rec = float(self.cor + self.par) / self.pos
-            except ZeroDivisionError:
-                self.rec = 0.0
-            try:
-                self.pre = float(self.cor + self.par) / self.act
-            except ZeroDivisionError:
-                self.pre = 0.0
-            try:
-                self.und = float(self.mis) / self.pos
-            except ZeroDivisionError:
-                self.und = 0.0
-            try:
-                self.ovg = float(self.spu) / self.act
-            except ZeroDivisionError:
-                self.ovg = 0.0
-            try:
-                self.sub = float(self.inc) / (self.cor + self.par + self.inc)
-            except ZeroDivisionError:
-                self.sub = 0.0
+            self.rec = safe_division(float(self.cor + self.par), self.pos)
+            self.pre = safe_division(float(self.cor + self.par), self.act)
+            self.und = safe_division(float(self.mis), self.pos)
+            self.ovg = safe_division(float(self.spu), self.act)
+            self.sub = safe_division(float(self.inc),
+                                     (self.cor + self.par + self.inc))
         elif comparison_type == self.STRICT_COMPARISON:
             self.pos = self.cor + self.par + self.inc + self.mis
             self.act = self.cor + self.par + self.inc + self.spu
-            try:
-                self.rec = float(self.cor) / self.pos
-            except ZeroDivisionError:
-                self.rec = 0.0
-            try:
-                self.pre = float(self.cor) / self.act
-            except ZeroDivisionError:
-                self.pre = 0.0
-            try:
-                self.und = float(self.mis) / self.pos
-            except ZeroDivisionError:
-                self.und = 0.0
-            try:
-                self.ovg = float(self.spu) / self.act
-            except ZeroDivisionError:
-                self.ovg = 0.0
+            self.rec = safe_division(float(self.cor), self.pos)
+            self.pre = safe_division(float(self.cor), self.act)
+            self.und = safe_division(float(self.mis), self.pos)
+            self.ovg = safe_division(float(self.spu), self.act)
             try:
                 self.sub = (float((self.inc + self.par)) /
-                           (self.cor + self.par + self.inc))
+                            (self.cor + self.par + self.inc))
             except ZeroDivisionError:
                 self.sub = 0.0
-        # TODO: add exception handling
         elif comparison_type == self.BORDER_COMPARISON:
             self.pos = self.bor + self.par + self.mis
             self.act = self.bor + self.par + self.spu
-            self.rec = float(self.bor) / self.pos
-            self.pre = float(self.bor) / self.act
-            self.und = float(self.mis) / self.pos
-            self.ovg = float(self.spu) / self.act
-            self.sub = float(self.ibo) / (self.bor + self.ibo)
+            self.rec = safe_division(float(self.bor), self.pos)
+            self.pre = safe_division(float(self.bor), self.act)
+            self.und = safe_division(float(self.mis), self.pos)
+            self.ovg = safe_division(float(self.spu), self.act)
+            self.sub = safe_division(float(self.ibo), (self.bor + self.ibo))
         else:
             print("Something's wrong!")
 
@@ -193,7 +219,7 @@ class MucTable:
         self.spu += muc_table.spu
         self.bor += muc_table.bor
         self.ibo += muc_table.ibo
-        self.update_table(None)
+        self.update_table()
 
     @property
     def tsvheader(self):
@@ -380,6 +406,49 @@ class Annotation:
         return (parallel_ann.start_idx <= self.start_idx and
                 parallel_ann.end_idx >= self.end_idx)
 
+    def is_partial_to(self, parallel_ann):
+        """Returns `True` if the annotation is a partial match to the parallel
+        annotation. To be considered a partial match the annotations have to
+        have the same end index and tag name. The relation is not reflexive,
+        therefore only the smaller annotation (smaller span) is considered to
+        fulfill it.
+
+        :param parallel_ann:
+        :return:
+        """
+        return (self.start_idx > parallel_ann.start_idx and
+                self.end_idx == parallel_ann.end_idx and
+                self.tag_name == parallel_ann.tag_name)
+
+    def get_same_anns(self, parallel_anns):
+        """Returns a list of parallel annotations with that match this annotation.
+
+        :param parallel_anns: list of parallel annotations
+        :return: list of contained annotations
+        :rtype: list
+        """
+        same = []
+        for ann in parallel_anns:
+            if self == ann:
+                same.append(ann)
+                logger.debug('Matching annotations: {} : {}'.format(self, ann))
+        return same
+
+    def get_coinciding_anns(self, parallel_anns):
+        """Returns a list of annotations from a parallel annotation that
+        conincide with the current annotation.
+
+        :param parallel_anns: parallel annotation
+        :return: list of coinciding annotations
+        """
+        coinsiding = []
+        for ann in parallel_anns:
+            if self.coincides_with(ann):
+                coinsiding.append(ann)
+                logger.debug('Coinsiding annotations: {} : {}'
+                             .format(self, ann))
+        return coinsiding
+
     def get_contained_anns(self, parallel_anns):
         """Returns a list of parallel annotations contained in this annotation.
 
@@ -387,7 +456,12 @@ class Annotation:
         :return: list of contained annotations
         :rtype: list
         """
-        return [x for x in parallel_anns if self.contains_ann(x)]
+        contained = []
+        for ann in parallel_anns:
+            if self.contains_ann(ann):
+                contained.append(ann)
+                logger.debug('`{}` contained in `{}`'.format(ann, self))
+        return contained
 
     def get_containing_ann(self, parallel_anns):
         """Returns the parallel annotation that contains this annotation.
@@ -396,14 +470,11 @@ class Annotation:
         :return: containing parallel annotation
         :rtype: Annotation
         """
-        it = iter(parallel_anns)
-        try:
-            t = it.next()
-            while not self.is_contained_by(t):
-                t = it.next()
-        except StopIteration:
-            return None
-        return t
+
+        containing_anns = [a for a in parallel_anns if self.is_contained_by(a)]
+        containing_anns.sort(key=(lambda x: x.end_idx - x.start_idx))
+
+        return containing_anns
 
     def overlaps_with(self, parallel_ann):
         """Returns True if this annotation overlaps with the parallel annotaiton
@@ -490,10 +561,14 @@ class Annotation:
                 self.tag_name == ann.tag_name)
 
     def __str__(self):
-        return " ".join([self.tag_name, self.text])
+        atts = [self.tag_name, str(self.start_idx), str(self.end_idx),
+                self.text]
+        return " ".join(atts)
 
     def __repr__(self):
-        return " ".join([self.tag_name, self.text])
+        atts = [self.tag_name, str(self.start_idx), str(self.end_idx),
+                self.text]
+        return " ".join(atts)
 
 
 class Filter:
@@ -587,9 +662,8 @@ class Document:
 
     def sort(self):
         """Sort annotations in this document by their starting index.
-
-
         """
+
         self.tags.sort(key=lambda tag: tag.start_idx)
 
     def make_gold(self):
@@ -610,6 +684,58 @@ class Document:
         for tag in self.tags:
             tag.reverse_gold()
 
+    @staticmethod
+    def handle_coinsiding_tags(tag, ctags, muc):
+        for ctag in ctags:
+            if tag == ctag:
+                tag.comp_status = MucTable.CORRECT
+                ctag.comp_status = MucTable.CORRECT
+                muc.cor += 1
+                logger.debug('Correct match: {} : {}'.format(tag, ctag))
+            else:
+                ctag.comp_status = MucTable.INCORRECT
+                muc.inc += 1
+                logger.debug('Incorrect match: {} : {}'.format(tag, ctag))
+        if tag.comp_status != MucTable.CORRECT:
+            tag.comp_status = MucTable.INCORRECT
+
+    @staticmethod
+    def handle_contained_tags(tag, ctags, muc):
+        for ctag in ctags:
+            if ctag.is_partial_to(tag):
+                par = 0
+                if tag.comp_status != MucTable.CORRECT:
+                    tag.comp_status = MucTable.PARTIAL
+                    par = 1
+                if ctag.comp_status != MucTable.CORRECT:
+                    ctag.comp_status = MucTable.PARTIAL
+                    par = 1
+                muc.par += par
+                logger.debug('Patrtial match: {} : {}'.format(tag, ctag))
+
+    @staticmethod
+    def handle_containing_tags(tag, ctags, muc):
+        for ctag in ctags:
+            logger.debug('`{}` :contains: `{}`'.format(ctag, tag))
+            if tag.is_partial_to(ctag):
+                par = 0
+                if tag.comp_status != MucTable.CORRECT:
+                    tag.comp_status = MucTable.PARTIAL
+                    par = 1
+                if ctag.comp_status != MucTable.CORRECT:
+                    ctag.comp_status = MucTable.PARTIAL
+                    par = 1
+                muc.par += par
+                logger.debug('Partial match: `{}` in `{}`'.format(tag, ctag))
+
+    @staticmethod
+    def count_remaining(parallel_annotations):
+        remaining = []
+        for ann in parallel_annotations:
+            if ann.comp_status is None:
+                remaining.append(ann)
+        return len(remaining)
+
     def compare_to_gold(self, parallel_doc):
         """Compares this annotation document to a parallel document.
 
@@ -618,47 +744,50 @@ class Document:
         :rtype: MucTable
         """
         muc = MucTable()
+
+        logger.debug('Annotations A: {}\tAnnotations B: {}'
+                     .format(len(self.tags), len(parallel_doc.tags)))
+
         self.sort()
         parallel_doc.sort()
         for tag in self.tags:
+
+            # tags with coinciding indices
+            coinsiding_tags = tag.get_coinciding_anns(parallel_doc.tags)
+            if coinsiding_tags:
+                self.handle_coinsiding_tags(tag, coinsiding_tags, muc)
+                continue
+
+            # tags contained in the current annotation
             contained_tags = tag.get_contained_anns(parallel_doc.tags)
-            if not contained_tags:
-                ctag = tag.get_containing_ann(parallel_doc.tags)
-                if ctag and ctag.comp_status == MucTable.MISSING:
-                    muc.par += 1
-                    tag.comp_status = MucTable.PARTIAL
-                    ctag.comp_status = MucTable.PARTIAL
-                    continue
-            for ctag in contained_tags:
-                if tag == ctag:  # full match
-                    tag.comp_status = MucTable.CORRECT
-                    ctag.comp_status = MucTable.CORRECT
-                    muc.cor += 1
-                elif tag.coincides_with(ctag):  # incorrect tag
-                    tag.comp_status = MucTable.INCORRECT
-                    ctag.comp_status = MucTable.INCORRECT
-                    muc.inc += 1
-                elif (tag.comp_status != MucTable.PARTIAL and
-                        tag.tag_name == ctag.tag_name):  # partial match
-                    tag.comp_status = MucTable.PARTIAL
-                    ctag.comp_status = MucTable.PARTIAL
-                    muc.par += 1
-                else:  # incorrect
-                    if tag.comp_status != MucTable.PARTIAL:
-                        tag.comp_status = MucTable.INCORRECT
-                    ctag.comp_status = MucTable.INCORRECT
-                    muc.inc += 1
+            if contained_tags:
+                self.handle_contained_tags(tag, contained_tags, muc)
+                continue
+
+            # tags containing the current tag
+            containing_tags = tag.get_containing_ann(parallel_doc.tags)
+            if containing_tags:
+                self.handle_containing_tags(tag, containing_tags, muc)
+
         # Spurious tags are tags that are not fully contained in any gold tag
-        # spu = n of guess tags - n of contained tags
-        muc.spu = len(self.tags) - len([x for x in self.tags if x.comp_status])
+        muc.spu = self.count_remaining(parallel_doc.tags)
+
         # Missing tags are tags that are not fully contained in any guess tag
-        # mis = n of gold tags - n of contained tags
-        muc.mis = len([x
-                       for x
-                       in parallel_doc.tags
-                       if x.comp_status == MucTable.MISSING])
+        muc.mis = self.count_remaining(self.tags)
+
         muc.update_table()
         return muc
+
+    def remove_duplicates(self):
+        """Removes duplicate annotations in this document.
+        """
+
+        for tag in self.tags:
+            equal_tags = tag.get_same_anns(self.tags)
+
+            if len(equal_tags) > 1:
+                for equal_tag in equal_tags[1:]:
+                    self.tags.remove(equal_tag)
 
     def filter_document(self, doc_filters):
         """Applies the list of filter to this annotation document.
@@ -671,8 +800,6 @@ class Document:
 
     def reset_markers(self):
         """Reset markers of all annotations in this document.
-
-
         """
         for tag in self.tags:
             tag.reset_markers()
