@@ -19,7 +19,7 @@ setup(
     include_package_data=False,
     description='brat utilities',
     author='Sasho Savkov',
-    license='MIT',
+    license='GNU',
     long_description=(
         'https://github.com/savkov/bratutils'
     )
