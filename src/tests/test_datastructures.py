@@ -1,21 +1,22 @@
-# This file is part of BratUtils.
+# This file is part of bratutils.
 #
-# BratUtils is free software: you can redistribute it and/or modify
+# bratutils is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# BratUtils is distributed in the hope that it will be useful,
+# bratutils is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with BratUtils.  If not, see <http://www.gnu.org/licenses/>.
-__author__ = 'Aleksandar Savkov'
+# along with bratutils.  If not, see <http://www.gnu.org/licenses/>.
 
 from unittest import TestCase
 from bratutils.bratdata import *
+
+__author__ = 'Aleksandar Savkov'
 
 
 class TestDataStructures(TestCase):
@@ -23,8 +24,8 @@ class TestDataStructures(TestCase):
     def setUp(self):
         self.commentStr = "#1	AnnotatorNotes T36	Abbreviation for the " \
                           "word increase"
-        self.comment2Str = "#2	AnnotatorNotes T45	Another abbreviation for " \
-                           "the word increase"
+        self.comment2Str = "#2	AnnotatorNotes T45	Another abbreviation for" \
+                           " the word increase"
         self.recordStr = "T36	MV 681 685	incr"
         self.record2Str = "T39	NP 798 805;810 819	bla bla"
         self.record3Str = "T45	NP 681 685	incr"

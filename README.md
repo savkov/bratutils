@@ -1,4 +1,4 @@
-BratUtils
+bratutils
 =========
 
 A collection of utilities for manipulating data and calculating inter-annotator 
@@ -8,7 +8,9 @@ agreement in brat annotation files.
 
 Install as a normal package from the source directory.
 
-```python setup install```
+```bash
+$ pip install .
+```
 
 
 ### Agreement Definition
@@ -52,7 +54,7 @@ doc2 = a.Document('res/samples/B/data-sample-1.ann')
 doc.make_gold()
 statistics = doc2.compare_to_gold(doc)
 
-print statistics
+print(statistics)
 ```
 
 Output:
@@ -81,11 +83,6 @@ ibo:15
 ------------------------------------------------
 ------------------------------------------------
 ```
-
-### TODO
-
-* migrate to Python 3
-* document `utils`
 
 
 [fsc]: <https://en.wikipedia.org/wiki/F1_score>

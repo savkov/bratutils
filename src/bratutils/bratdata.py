@@ -1,21 +1,22 @@
-# This file is part of BratUtils.
+# This file is part of bratutils.
 #
-# BratUtils is free software: you can redistribute it and/or modify
+# bratutils is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# BratUtils is distributed in the hope that it will be useful,
+# bratutils is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with BratUtils.  If not, see <http://www.gnu.org/licenses/>.
+# along with bratutils.  If not, see <http://www.gnu.org/licenses/>.
+
 __author__ = 'Aleksandar Savkov'
 
-"""This module holds data structure classes and relevant methods for parsing and
-manipulating brat annotation files.
+"""This module holds data structure classes and relevant methods for parsing
+and manipulating brat annotation files.0
 """
 
 import logging
@@ -268,8 +269,9 @@ class BratDocument(dict):
             new_duplicates = self.get_duplicates(key)
             for duplicate in new_duplicates:
                 self[key].add_comment(self[duplicate].comment)
-                del self[duplicate]
             duplicates.extend(new_duplicates)
+        for duplicate in duplicates:
+            del self[duplicate]
 
     def get_duplicates(self, target_key):
         """Returns a list of keys of duplicate annotations of a target
@@ -348,7 +350,7 @@ class BratDocument(dict):
                 stack.append(triples[i + look_ahead])
                 look_ahead += 1
             if balance != 0:
-                print "Stack %s\n%s" % (tr, stack)
+                print("Stack %s\n%s" % (tr, stack))
                 logging.info("Stack %s\n%s" % (tr, stack))
                 return False
         return True
