@@ -1,4 +1,4 @@
-BratUtils
+bratutils
 =========
 
 A collection of utilities for manipulating data and calculating inter-annotator 
@@ -8,7 +8,9 @@ agreement in brat annotation files.
 
 Install as a normal package from the source directory.
 
-```python setup install```
+```bash
+$ pip install .
+```
 
 
 ### Agreement Definition
@@ -84,7 +86,6 @@ ibo:15
 
 ### TODO
 
-* migrate to Python 3
 * document `utils`
 
 
