@@ -43,6 +43,11 @@ class TestDataStructures(TestCase):
         self.assertEquals(r.boundaries, [["681", "685"]])
         self.assertEquals(r.content, "incr")
 
+    def test_skip_relations(self):
+        relation_ann = "E3	Positive_regulation:T4	Theme:E4"
+        ann = BratDocument(string=relation_ann)
+        self.assertEquals(len(ann), 0)
+
     def test_record_addcomment(self):
         r = BratAnnotation(self.recordStr)
         c = BratComment(self.commentStr)

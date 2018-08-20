@@ -214,7 +214,7 @@ class BratDocument(dict):
     their ID as a key value.
     """
 
-    def __init__(self, fp=None, no_newline=True):
+    def __init__(self, fp=None, no_newline=True, string=None):
         """Construct a new object and optionally add content to it from an
         annotation document file (.ann).
 
@@ -224,15 +224,26 @@ class BratDocument(dict):
         super(BratDocument, self).__init__()
         if fp:
             with open(fp) as doc:
-                for line in doc:
-                    if no_newline:
-                        line = line[0:-1]
-                    if line.startswith("#"):
-                        comment = BratComment(line)
-                        self[comment.recordref].set_comment(comment)
-                    else:
-                        ann = BratAnnotation(line)
-                        self[ann.id] = ann
+                self._parse_document(doc, no_newline=no_newline)
+        elif string:
+            self._parse_document(string.split('\n'), no_newline=no_newline)
+
+    def _parse_document(self, doc, no_newline):
+        """
+        Parse an annotation document by iterating over its lines
+        """
+        for line in doc:
+            if no_newline:
+                line = line[0:-1]
+            if line.startswith("#"):
+                comment = BratComment(line)
+                self[comment.recordref].set_comment(comment)
+            elif line.startswith('E'):
+                # put relation parsing here
+                continue
+            else:
+                ann = BratAnnotation(line)
+                self[ann.id] = ann
 
     def filter_tags(self, filters, positive_polarity=True):
         """Filter annotations in this document
