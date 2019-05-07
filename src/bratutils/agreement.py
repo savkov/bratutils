@@ -647,7 +647,9 @@ class Document:
         self.partial = []
         self.spurious = []
         self.missing = []
+        self.basename = ""
         if fp:
+            self.basename = os.path.basename(fp)
             with open(fp) as doc:
                 for line in doc:
                     if not line.startswith("#"):
@@ -745,6 +747,7 @@ class Document:
         """
         muc = MucTable()
 
+        logger.debug('File: {}'.format(self.basename))
         logger.debug('Annotations A: {}\tAnnotations B: {}'
                      .format(len(self.tags), len(parallel_doc.tags)))
 
