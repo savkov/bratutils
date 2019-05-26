@@ -9,7 +9,7 @@ agreement in brat annotation files.
 Install as a normal package from the source directory.
 
 ```bash
-$ pip install .
+$ pip install bratutils
 ```
 
 

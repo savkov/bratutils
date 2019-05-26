@@ -1,0 +1,34 @@
+version: 2
+workflows:
+  version: 2
+  bratutils-flow:
+    jobs:
+      - test:
+          filters:
+            branches:
+              ignore:
+                - master
+
+      - tag:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^.*/
+
+jobs:
+  test:
+    machine: true
+    working_directory: ~/project
+    steps:
+      - checkout
+      - run: make build
+      - run: make lint
+      - run: make test
+
+  tag:
+    machine: true
+    working_directory: ~/project
+    steps:
+      - checkout
+      - run: make release
