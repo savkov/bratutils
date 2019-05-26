@@ -444,13 +444,13 @@ class Annotation:
         :param parallel_anns: parallel annotation
         :return: list of coinciding annotations
         """
-        coinsiding = []
+        coinciding = []
         for ann in parallel_anns:
             if self.coincides_with(ann):
-                coinsiding.append(ann)
-                logger.debug('Coinsiding annotations: {} : {}'
+                coinciding.append(ann)
+                logger.debug('Coinciding annotations: {} : {}'
                              .format(self, ann))
-        return coinsiding
+        return coinciding
 
     def get_contained_anns(self, parallel_anns):
         """Returns a list of parallel annotations contained in this annotation.
@@ -689,7 +689,7 @@ class Document:
             tag.reverse_gold()
 
     @staticmethod
-    def handle_coinsiding_tags(tag, ctags, muc):
+    def handle_coinciding_tags(tag, ctags, muc):
         for ctag in ctags:
             if tag == ctag:
                 tag.comp_status = MucTable.CORRECT
@@ -759,9 +759,9 @@ class Document:
         for tag in self.tags:
 
             # tags with coinciding indices
-            coinsiding_tags = tag.get_coinciding_anns(parallel_doc.tags)
-            if coinsiding_tags:
-                self.handle_coinsiding_tags(tag, coinsiding_tags, muc)
+            coinciding_tags = tag.get_coinciding_anns(parallel_doc.tags)
+            if coinciding_tags:
+                self.handle_coinciding_tags(tag, coinciding_tags, muc)
                 continue
 
             # tags contained in the current annotation
