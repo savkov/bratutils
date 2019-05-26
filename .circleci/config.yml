@@ -18,7 +18,7 @@ workflows:
 
 bratutils-env: &bratutils-env
   docker:
-    - image: python:3.6.8-slim-stretch
+    - image: python:3.6.8-stretch
   working_directory: ~/project
 
 jobs:
