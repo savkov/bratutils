@@ -16,19 +16,22 @@ workflows:
             tags:
               only: /^.*/
 
+bratutils-env: &bratutils-env
+  docker:
+    - image: circleci/python:3.6.8
+  working_directory: ~/project
+
 jobs:
   test:
-    machine: true
-    working_directory: ~/project
+    <<: *bratutils-env
     steps:
       - checkout
-      - run: make build
+      - run: sudo make build
       - run: make lint
       - run: make test
 
   tag:
-    machine: true
-    working_directory: ~/project
+    <<: *bratutils-env
     steps:
       - checkout
-      - run: make release
+      - run: sudo make release
