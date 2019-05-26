@@ -26,7 +26,7 @@ jobs:
     <<: *bratutils-env
     steps:
       - checkout
-      - run: make build
+      - run: sudo make build
       - run: make lint
       - run: make test
 
@@ -34,4 +34,4 @@ jobs:
     <<: *bratutils-env
     steps:
       - checkout
-      - run: make release
+      - run: sudo make release
