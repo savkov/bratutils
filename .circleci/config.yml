@@ -3,12 +3,7 @@ workflows:
   version: 2
   bratutils-flow:
     jobs:
-      - test:
-          filters:
-            branches:
-              ignore:
-                - master
-
+      - test
       - tag:
           filters:
             branches:
