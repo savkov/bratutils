@@ -18,7 +18,8 @@ workflows:
 
 jobs:
   test:
-    machine: true
+    docker:
+      - image: circleci/python:stretch
     working_directory: ~/project
     steps:
       - checkout
@@ -27,7 +28,8 @@ jobs:
       - run: make test
 
   tag:
-    machine: true
+    docker:
+      - image: circleci/python:stretch
     working_directory: ~/project
     steps:
       - checkout
