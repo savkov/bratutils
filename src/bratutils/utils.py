@@ -101,8 +101,8 @@ def merge_brat_dox_dir(dp_a, dp_b, dp_res):
 
 
 def merge_brat_documents(fp_a, fp_b, fp_res):
-    """Merges two annotation of the same document (`fp_a` amd `fp_b`) into their
-    union without duplicates stored into document in `fp_res`.
+    """Merges two annotation of the same document (`fp_a` amd `fp_b`) into
+    their union without duplicates stored into document in `fp_res`.
 
     :param fp_a: file path A
     :param fp_b: file path B
@@ -112,13 +112,14 @@ def merge_brat_documents(fp_a, fp_b, fp_res):
     doc2 = BratAnnotation(doc_path=fp_b)
     merged_doc = BratAnnotation()
     merged_doc.update(doc1)
-    doc1size = len(doc1)
-    doc1comments = doc1.comments_count
+    doc1_size = len(doc1)
+    doc1_comments = doc1.comments_count
     for record in doc2.values():
         record_id = int(record.id)
-        record.update_id(record_id + doc1size)
+        record.update_id(record_id + doc1_size)
         if record.comment:
-            record.comment.id = "{0}{1}".format(record.comment.id, doc1comments)
+            record.comment.id = "{0}{1}".format(record.comment.id,
+                                                doc1_comments)
         merged_doc[record.id] = record
     merged_doc.remove_duplicates()
     merged_doc.enumerate_comments()

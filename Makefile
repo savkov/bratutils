@@ -14,7 +14,7 @@ test:
 	coverage xml
 
 lint:
-	flake8
+	flake8 src/bratutils
 
 release: build
 	pip install twine
