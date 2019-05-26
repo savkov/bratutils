@@ -18,7 +18,7 @@ workflows:
 
 bratutils-env: &bratutils-env
   docker:
-    - image: circleci/python:3.6.8
+    - image: python:3.6.8-slim-stretch
   working_directory: ~/project
 
 jobs:
