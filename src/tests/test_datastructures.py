@@ -32,21 +32,21 @@ class TestDataStructures(TestCase):
 
     def test_comment(self):
         c = BratComment(self.commentStr)
-        self.assertEquals(c.id, 1)
-        self.assertEquals(c.recordref, 36)
-        self.assertEquals(c.note, "Abbreviation for the word increase")
+        self.assertEqual(c.id, 1)
+        self.assertEqual(c.recordref, 36)
+        self.assertEqual(c.note, "Abbreviation for the word increase")
 
     def test_record(self):
         r = BratAnnotation(self.recordStr)
-        self.assertEquals(r.id, 36)
-        self.assertEquals(r.tag, "MV")
-        self.assertEquals(r.boundaries, [["681", "685"]])
-        self.assertEquals(r.content, "incr")
+        self.assertEqual(r.id, 36)
+        self.assertEqual(r.tag, "MV")
+        self.assertEqual(r.boundaries, [["681", "685"]])
+        self.assertEqual(r.content, "incr")
 
     def test_skip_relations(self):
         relation_ann = "E3	Positive_regulation:T4	Theme:E4"
         ann = BratDocument(string=relation_ann)
-        self.assertEquals(len(ann), 0)
+        self.assertEqual(len(ann), 0)
 
     def test_record_addcomment(self):
         r = BratAnnotation(self.recordStr)
@@ -54,7 +54,7 @@ class TestDataStructures(TestCase):
         c2 = BratComment(self.comment2Str)
         r.set_comment(c)
         r.add_comment(c2)
-        self.assertEquals(str(r.comment),
+        self.assertEqual(str(r.comment),
                           "#1\tAnnotatorNotes T36\tComment "
                           "1: Abbreviation for the word increase Comment "
                           "2: Another abbreviation for the word increase\n")
@@ -62,8 +62,8 @@ class TestDataStructures(TestCase):
     def test_record_getBoundaryText(self):
         r = BratAnnotation(self.recordStr)
         r2 = BratAnnotation(self.record2Str)
-        self.assertEquals(r.boundary_str, "681 685")
-        self.assertEquals(r2.boundary_str, "798 805;810 819")
+        self.assertEqual(r.boundary_str, "681 685")
+        self.assertEqual(r2.boundary_str, "798 805;810 819")
 
     def test_record_eq(self):
         r1 = BratAnnotation(self.recordStr)
@@ -75,7 +75,7 @@ class TestDataStructures(TestCase):
     #     tv = BratTokenVector(doc_path="./res/sampleTokenVector.tok")
     #     token = BratToken("symptomAs\t21\t29")
     #     idx = tv.get_token_idx(token)
-    #     self.assertEquals(idx, 2)
+    #     self.assertEqual(idx, 2)
     #
     # def test_tokenvector_insertListAt(self):
     #     tv = BratTokenVector(doc_path="./res/sampleTokenVector.tok")
@@ -83,9 +83,9 @@ class TestDataStructures(TestCase):
     #     tok_before = BratToken("distension	10	19")
     #     tok_after = BratToken("symptomAs	21	29")
     #     tv.insert_list_at(2, tokenList)
-    #     self.assertEquals(tv[1], tok_before, "Preceding token misatch.")
-    #     self.assertEquals(tv[4], tok_after, "Following token misatch.")
-    #     self.assertEquals(tv[2:4], tokenList, "List tokens mismatch.")
+    #     self.assertEqual(tv[1], tok_before, "Preceding token misatch.")
+    #     self.assertEqual(tv[4], tok_after, "Following token misatch.")
+    #     self.assertEqual(tv[2:4], tokenList, "List tokens mismatch.")
 
     def test_document_eq(self):
         doc = BratDocument()

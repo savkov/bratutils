@@ -409,4 +409,3 @@ def _comp_brat_ann(ann_a, ann_b):
         return 0
     else:
         return -1
-

@@ -22,8 +22,8 @@ __author__ = 'Aleksandar Savkov'
 
 """This module groups data structure classes necessary for the calculation of
 inter-annotator agreement (IAA) of two sets of parallel annotations. The main
-statics counting class is MucTable, which the rest provide suitable brat enabled
-data structures for it.
+statics counting class is MucTable, which the rest provide suitable brat
+enabled data structures for it.
 """
 
 
@@ -79,7 +79,8 @@ logger = standard_logger(name='agreement', log_level=logging.DEBUG)
 
 
 class Comparison:
-    """A container for the parameters used in the comparison of two annotations.
+    """A container for the parameters used in the comparison of two
+    annotations.
     """
 
     def __init__(self):
@@ -156,7 +157,8 @@ class MucTable:
         (correct).
 
         :param comparison_type: comparison type
-        :type: one of STRICT_COMPARISON, RELAXED_COMPARISON or BORDER_COMPARISON
+        :type: one of STRICT_COMPARISON, RELAXED_COMPARISON or
+        BORDER_COMPARISON
         """
         self.pos = self.cor + self.inc + self.mis
         self.act = self.cor + self.inc + self.spu
@@ -267,8 +269,8 @@ class MucTable:
 
 
 class Annotation:
-    """Annotation data structure encoding the tag and position of an annotaiton,
-    along with information about its comparison status.
+    """Annotation data structure encoding the tag and position of an
+    annotation, along with information about its comparison status.
     """
 
     def __init__(self, a):
@@ -421,7 +423,8 @@ class Annotation:
                 self.tag_name == parallel_ann.tag_name)
 
     def get_same_anns(self, parallel_anns):
-        """Returns a list of parallel annotations with that match this annotation.
+        """Returns a list of parallel annotations with that match this
+        annotation.
 
         :param parallel_anns: list of parallel annotations
         :return: list of contained annotations
@@ -477,8 +480,8 @@ class Annotation:
         return containing_anns
 
     def overlaps_with(self, parallel_ann):
-        """Returns True if this annotation overlaps with the parallel annotaiton
-        in `parallel_ann`.
+        """Returns True if this annotation overlaps with the parallel
+        annotation in `parallel_ann`.
 
         :param parallel_ann: parallel annotation
         :return: True if the annotations overlap
@@ -515,7 +518,8 @@ class Annotation:
         return overlapping_tags
 
     def has_partial_candidate(self, parallel_ann):
-        """Checks the provided parallel annotation is a partial match candidate.
+        """Checks the provided parallel annotation is a partial match
+        candidate.
 
         :param parallel_ann: parallel annotation
         :return: True if parallel annotation is a partial match
@@ -667,8 +671,8 @@ class Document:
         self.tags.sort(key=lambda tag: tag.start_idx)
 
     def make_gold(self):
-        """Set all annotations in this document to gold standard default values.
-        Look at same method in Annotation.
+        """Set all annotations in this document to gold standard default
+        values. Look at same method in Annotation.
 
 
         """
@@ -952,5 +956,3 @@ class DocumentCollection:
 
     def __repr__(self):
         return str(self)
-
-
