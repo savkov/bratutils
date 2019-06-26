@@ -1,17 +1,3 @@
-# This file is part of bratutils.
-#
-# bratutils is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# bratutils is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with bratutils.  If not, see <http://www.gnu.org/licenses/>.
 import os
 import glob
 import ntpath
@@ -444,13 +430,13 @@ class Annotation:
         :param parallel_anns: parallel annotation
         :return: list of coinciding annotations
         """
-        coinsiding = []
+        coinciding = []
         for ann in parallel_anns:
             if self.coincides_with(ann):
-                coinsiding.append(ann)
-                logger.debug('Coinsiding annotations: {} : {}'
+                coinciding.append(ann)
+                logger.debug('Coinciding annotations: {} : {}'
                              .format(self, ann))
-        return coinsiding
+        return coinciding
 
     def get_contained_anns(self, parallel_anns):
         """Returns a list of parallel annotations contained in this annotation.
@@ -651,7 +637,9 @@ class Document:
         self.partial = []
         self.spurious = []
         self.missing = []
+        self.basename = ""
         if fp:
+            self.basename = os.path.basename(fp)
             with open(fp) as doc:
                 for line in doc:
                     if not line.startswith("#"):
@@ -689,7 +677,7 @@ class Document:
             tag.reverse_gold()
 
     @staticmethod
-    def handle_coinsiding_tags(tag, ctags, muc):
+    def handle_coinciding_tags(tag, ctags, muc):
         for ctag in ctags:
             if tag == ctag:
                 tag.comp_status = MucTable.CORRECT
@@ -749,6 +737,7 @@ class Document:
         """
         muc = MucTable()
 
+        logger.debug('File: {}'.format(self.basename))
         logger.debug('Annotations A: {}\tAnnotations B: {}'
                      .format(len(self.tags), len(parallel_doc.tags)))
 
@@ -759,9 +748,9 @@ class Document:
         for tag in self.tags:
 
             # tags with coinciding indices
-            coinsiding_tags = tag.get_coinciding_anns(parallel_doc.tags)
-            if coinsiding_tags:
-                self.handle_coinsiding_tags(tag, coinsiding_tags, muc)
+            coinciding_tags = tag.get_coinciding_anns(parallel_doc.tags)
+            if coinciding_tags:
+                self.handle_coinciding_tags(tag, coinciding_tags, muc)
                 continue
 
             # tags contained in the current annotation
