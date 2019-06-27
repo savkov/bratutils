@@ -94,6 +94,7 @@ def merge_brat_documents(fp_a, fp_b, fp_res):
     :param fp_b: file path B
     :param fp_res: results file path
     """
+    # TODO: this looks wrong; investigate
     doc1 = BratAnnotation(doc_path=fp_a)
     doc2 = BratAnnotation(doc_path=fp_b)
     merged_doc = BratAnnotation()

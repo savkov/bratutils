@@ -1,18 +1,3 @@
-# This file is part of bratutils.
-#
-# bratutils is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# bratutils is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with bratutils.  If not, see <http://www.gnu.org/licenses/>.
-
 from unittest import TestCase
 from bratutils.bratdata import *
 
@@ -32,13 +17,13 @@ class TestDataStructures(TestCase):
 
     def test_comment(self):
         c = BratComment(self.commentStr)
-        self.assertEqual(c.id, 1)
-        self.assertEqual(c.recordref, 36)
+        self.assertEqual(c.id, '#1')
+        self.assertEqual(c.recordref, 'T36')
         self.assertEqual(c.note, "Abbreviation for the word increase")
 
     def test_record(self):
         r = BratAnnotation(self.recordStr)
-        self.assertEqual(r.id, 36)
+        self.assertEqual(r.id, 'T36')
         self.assertEqual(r.tag, "MV")
         self.assertEqual(r.boundaries, [["681", "685"]])
         self.assertEqual(r.content, "incr")
@@ -147,14 +132,14 @@ class TestDataStructures(TestCase):
 
     def test_document_get_duplicates(self):
         doc_from_file = BratDocument("res/tests/sampledoc.ann")
-        duplicates = doc_from_file.get_duplicates(1)
-        self.assertListEqual(duplicates, [4])
-        duplicates = doc_from_file.get_duplicates(2)
+        duplicates = doc_from_file.get_duplicates('T1')
+        self.assertListEqual(duplicates, ['T4'])
+        duplicates = doc_from_file.get_duplicates('T2')
         self.assertListEqual(duplicates, [])
-        duplicates = doc_from_file.get_duplicates(3)
-        self.assertListEqual(duplicates, [7])
-        duplicates = doc_from_file.get_duplicates(4)
-        self.assertListEqual(duplicates, [1])
+        duplicates = doc_from_file.get_duplicates('T3')
+        self.assertListEqual(duplicates, ['T7'])
+        duplicates = doc_from_file.get_duplicates('T4')
+        self.assertListEqual(duplicates, ['T1'])
 
     def test_document_removeduplicates(self):
         doc_from_file = BratDocument("res/tests/sampledoc.ann")
@@ -182,3 +167,7 @@ class TestDataStructures(TestCase):
         doc[r6.id] = r6
         doc_from_file.remove_duplicates()
         self.assertDictEqual(doc, doc_from_file)
+
+    def test_unsupported_annotations(self):
+        doc = BratDocument("res/tests/unsupporteddoc.ann")
+        self.assertEqual(9, len(doc.values()))
