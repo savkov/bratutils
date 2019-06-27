@@ -12,7 +12,7 @@ with open('README.md', encoding='utf-8') as f:
 
 setup(
     name='bratutils',
-    version='0.2.2',
+    version='0.3.0.dev0',
     packages=find_packages('src', exclude=('tests',)),
     url='https://github.com/savkov/transcriptor',
     author='Sasho Savkov',

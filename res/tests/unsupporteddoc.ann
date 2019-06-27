@@ -1,0 +1,49 @@
+T1	N 0 7	Delilah
+#1	Lemma T1	 Delilah
+A1	SUBCAT T1 Prop
+A2	NUM T1 Sg
+A3	CASE T1 Nom
+A4	OTHER T1 UNK
+T2	A 8 15	Eilinen
+#2	Lemma T2	 eilinen
+A5	NUM T2 Sg
+A6	CASE T2 Nom
+A7	CMP T2 Pos
+A8	CASECHANGE T2 Cap
+T3	N 16 33	Delilah-musikaali
+#3	Lemma T3	 Delilah-musikaali
+A9	NUM T3 Sg
+A10	CASE T3 Nom
+A11	CASECHANGE T3 cap
+A12	OTHER T3 UNK
+T4	V 34 37	oli
+#4	Lemma T4	 olla
+A13	PRS T4 Sg3
+A14	VOICE T4 Act
+A15	TENSE T4 Prt
+A16	MOOD T4 Ind
+A17	CASECHANGE T4 cap
+T5	Adv 38 45	todella
+#5	Lemma T5	 todella
+A18	CASECHANGE T5 cap
+T6	A 46 56	onnistunut
+#6	Lemma T6	 onnistunut
+A19	NUM T6 Sg
+A20	CASE T6 Nom
+A21	CMP T6 Pos
+A22	CASECHANGE T6 cap
+T7	N 57 68	lopputyöksi
+#7	Lemma T7	 loppu|työ
+A23	NUM T7 Sg
+A24	CASE T7 Tra
+A25	CASECHANGE T7 cap
+T8	Punct 69 70	.
+#8	Lemma T8	 .
+R1	punct Arg1:T6 Arg2:T8
+R2	amod Arg1:T3 Arg2:T2
+R3	nommod Arg1:T6 Arg2:T7
+R4	advmod Arg1:T6 Arg2:T5
+R5	cop Arg1:T6 Arg2:T4
+R6	nsubj-cop Arg1:T6 Arg2:T3
+T9	C 71 77	Vaikka
+#9	Lemma T9	 vaikka

@@ -28,15 +28,15 @@ class BratComment(object):
         :rtype: str, str, str
         """
         items = c.split("\t")
-        rid = int(items[0][1:])
+        rid = items[0]
         note = items[2]
-        ref = int(items[1][16:])
+        ref = items[1].rsplit(' ', 1)[-1]
         return rid, note, ref
 
     def __str__(self):
-        return "#{0}\tAnnotatorNotes T{1}\t{2}\n".format(str(self.id),
-                                                         str(self.recordref),
-                                                         self.note)
+        return "{0}\tAnnotatorNotes {1}\t{2}\n".format(str(self.id),
+                                                       str(self.recordref),
+                                                       self.note)
 
     def __eq__(self, other):
         """Returns `True` if the other object is of type `BratComment` and the
@@ -78,7 +78,7 @@ class BratAnnotation(object):
     @staticmethod
     def _parse_annotation(a):
         items = a.split("\t")
-        rid = int(items[0][1:])
+        rid = items[0]
         subitems = items[1].split(" ", 1)
         tag = subitems[0]
         boundaries = []
@@ -146,20 +146,20 @@ class BratAnnotation(object):
 
     def __str__(self):
         comment_str = str(self.comment) if self.comment else ""
-        return "T{0}\t{1} {2}\t{3}\n{4}".format(str(self.id), self.tag,
-                                                ";".join([" ".join(b)
-                                                          for b
-                                                          in self.boundaries]),
-                                                self.content, comment_str)
+        return "{0}\t{1} {2}\t{3}\n{4}".format(str(self.id), self.tag,
+                                               ";".join([" ".join(b)
+                                                         for b
+                                                         in self.boundaries]),
+                                               self.content, comment_str)
 
     def __repr__(self):
         comment_str = "; {0}".format(str(self.comment)) if self.comment else ""
-        return "T{0}\t{1} {2}\t{3}{4}".format(str(self.id),
-                                              self.tag,
-                                              ";".join([" ".join(b)
-                                                        for b
-                                                        in self.boundaries]),
-                                              self.content, comment_str)
+        return "{0}\t{1} {2}\t{3}{4}".format(str(self.id),
+                                             self.tag,
+                                             ";".join([" ".join(b)
+                                                       for b
+                                                       in self.boundaries]),
+                                             self.content, comment_str)
 
     def __eq__(self, other):
         """Returns True if the following attributes of both objects are the
@@ -219,16 +219,18 @@ class BratDocument(dict):
         """
         for line in doc:
             if no_newline:
-                line = line[0:-1]
+                line = line.strip()
             if line.startswith("#"):
                 comment = BratComment(line)
                 self[comment.recordref].set_comment(comment)
-            elif line.startswith('E'):
-                # put relation parsing here
+            elif line[0] in 'RAE':
+                # annotations that are not handled ATM
                 continue
-            else:
+            elif line.startswith('T'):
                 ann = BratAnnotation(line)
                 self[ann.id] = ann
+            else:
+                raise ValueError('Unknown beginning of line')
 
     def filter_tags(self, filters, positive_polarity=True):
         """Filter annotations in this document
