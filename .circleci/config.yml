@@ -3,13 +3,21 @@ workflows:
   version: 2
   bratutils-flow:
     jobs:
-      - test
+      - test:
+          filters:
+            branches:
+              ignore:
+                - master
       - tag:
           filters:
             branches:
               ignore: /.*/
             tags:
               only: /^.*/
+      - coverage:
+          filters:
+            branches:
+              only: master
 
 bratutils-env: &bratutils-env
   docker:
