@@ -1,6 +1,8 @@
 bratutils
 =========
 [![CircleCI](https://circleci.com/gh/savkov/bratutils.svg?style=svg&circle-token=9a7bdcb066c87c45017fe2214c71f2e2f9672c94)](https://circleci.com/gh/savkov/bratutils)
+[![Maintainability](https://api.codeclimate.com/v1/badges/4c8fccbe0c29026c90bd/maintainability)](https://codeclimate.com/github/savkov/bratutils/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/4c8fccbe0c29026c90bd/test_coverage)](https://codeclimate.com/github/savkov/bratutils/test_coverage)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A collection of utilities for manipulating data and calculating inter-annotator 
