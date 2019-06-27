@@ -25,6 +25,20 @@ jobs:
       - run: make lint
       - run: make test
 
+  coverage:
+    <<: *bratutils-env
+    steps:
+      - checkout
+      - run: make build
+      - run: make lint
+      - run:
+          name: Test
+          command: |
+            curl -L -o cc-test-reporter https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64
+            chmod +x cc-test-reporter
+            ./cc-test-reporter before-build
+            make test
+            ./cc-test-reporter after-build -t coverage.py --exit-code $?
   tag:
     <<: *bratutils-env
     steps:
