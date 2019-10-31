@@ -564,6 +564,7 @@ class Annotation:
         return (self.text == ann.text and
                 self.start_idx == ann.start_idx and
                 self.end_idx == ann.end_idx and
+                self.frag == ann.frag and
                 self.tag_name == ann.tag_name)
 
     def __str__(self):
