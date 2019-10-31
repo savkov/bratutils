@@ -278,7 +278,7 @@ class Annotation:
         self.border_status = False
         self.border_match = None
 
-        self.text, self.tag_name, self.frag, self.start_idx, self.end_idx = \
+        self.text, self.tag_name, self.start_idx, self.end_idx, self.frag = \
             self._parse_annotation(a)
 
     @staticmethod
@@ -288,11 +288,12 @@ class Annotation:
         subitems = items[1].split(" ")
         tag_name = subitems.pop(0)
         subitems = " ".join(subitems).split(";")
+        frag = []
         for idx in subitems:
             start_idx, end_idx = idx.split(" ")
             frag.append((int(start_idx), int(end_idx)))
         start_idx = frag[0][0]
-        end_idx = frag[len(frag)][1]
+        end_idx = frag[len(frag)-1][1]
         return text, tag_name, start_idx, end_idx, frag
 
     def reset_markers(self):
@@ -388,14 +389,14 @@ class Annotation:
         :return: True if this annotaion contains the other annotation
         :rtype: bool
         """
-        contained_fragments = [False] * len(other_ann)
-        for i in range(len(other_ann)):
-            for j in range(len(self)):
-                if other_ann.idx[i][0] >= self[j][0] and \
+        contained_fragments = [False] * len(other_ann.frag)
+        for i in range(len(other_ann.frag)):
+            for j in range(len(self.frag)):
+                if other_ann.frag[i][0] >= self.frag[j][0] and \
                         other_ann.frag[i][1] <= self.frag[j][1]:
                     contained_fragments[i] = True
         # return True if all fragments of other_ann are contained in self
-        return contained_fragments == [True] * len(other_ann)
+        return contained_fragments == [True] * len(other_ann.frag)
 
 
     def is_contained_by(self, parallel_ann):
@@ -405,7 +406,7 @@ class Annotation:
         :return: True if contained in `parallel_ann`
         :rtype: bool
         """
-        return contains_ann(parallel_ann, self)
+        return self.contains_ann(parallel_ann)
 
 
     def is_partial_to(self, parallel_ann):
@@ -566,12 +567,12 @@ class Annotation:
                 self.tag_name == ann.tag_name)
 
     def __str__(self):
-        atts = [self.tag_name, str(self.start_idx), str(self.end_idx),
+        atts = [self.tag_name, str(self.start_idx), str(self.end_idx), str(self.frag),
                 self.text]
         return " ".join(atts)
 
     def __repr__(self):
-        atts = [self.tag_name, str(self.start_idx), str(self.end_idx),
+        atts = [self.tag_name, str(self.start_idx), str(self.end_idx), str(self.frag),
                 self.text]
         return " ".join(atts)
 
